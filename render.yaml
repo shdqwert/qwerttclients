@@ -1,0 +1,15 @@
+# Развёртывание на Render.com: один веб-сервис отдаёт и страницы, и API.
+# Render → New → Blueprint → выбрать этот репозиторий.
+services:
+  - type: web
+    name: qwerttclients
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "24"

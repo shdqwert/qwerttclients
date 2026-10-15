@@ -5,7 +5,7 @@ import { buildApp } from './app.ts';
 const env = process.env;
 const production = env.NODE_ENV === 'production';
 const port = Number(env.PORT ?? 4000);
-const host = env.HOST ?? '127.0.0.1';
+const host = env.HOST ?? (production ? '0.0.0.0' : '127.0.0.1');
 
 const { app } = buildApp({
   dbPath: env.DB_PATH ?? join(import.meta.dirname, '..', 'data', 'qwerttclients.db'),

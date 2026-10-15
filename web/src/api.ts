@@ -33,9 +33,12 @@ async function req<T>(method: string, url: string, body?: unknown): Promise<T> {
   } catch {
     throw new ApiErr(0, { error: 'network', message: 'Check your connection and try again.' });
   }
-  // Ответ не от нашего API (например, прокси разработки не достучался до сервера) — сервер недоступен.
-  if (!res.ok && res.status >= 500 && !res.headers.get('content-type')?.includes('json')) {
-    throw new ApiErr(503, { error: 'server_unavailable', message: 'The server is not responding. It may still be starting — try again in a few seconds.' });
+  // Ответ не от нашего API: прокси разработки не достучался до сервера (5xx)
+  // или сайт выложен без сервера и вместо данных пришла HTML-страница.
+  if (!res.headers.get('content-type')?.includes('json')) {
+    throw new ApiErr(503, res.status >= 500
+      ? { error: 'server_unavailable', message: 'The server is not responding. It may still be starting — try again in a few seconds.' }
+      : { error: 'server_missing', message: 'The booking server is not running at this address. Only the pages were published, without the server.' });
   }
   const data: unknown = res.headers.get('content-type')?.includes('json') ? await res.json() : null;
   if (!res.ok) {

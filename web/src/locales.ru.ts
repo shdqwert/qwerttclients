@@ -396,4 +396,5 @@ export const RU: Record<string, string> = {
   "Photo": "Фото",
   "Photo credits": "Авторы фото",
   "Photos on this site are from Unsplash and are used under the Unsplash License. Thank you to the photographers.": "Фотографии на сайте взяты с Unsplash и используются по лицензии Unsplash. Спасибо фотографам.",
+  "The booking server is not running at this address. Only the pages were published, without the server.": "По этому адресу не запущен сервер бронирования: опубликованы только страницы, без сервера.",
 };
