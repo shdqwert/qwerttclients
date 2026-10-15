@@ -1,0 +1,92 @@
+/* Дополнения к стилям дизайн-системы (base.css перенесён из макета без изменений):
+   настоящие поля ввода, раскладка под ширину экрана, модальные окна, уведомления. */
+
+:root{
+  /* Контейнер 1200 px по центру, как в макете 1440 px с полями 120 px. */
+  --px:max(24px,calc((100vw - 1200px) / 2));
+}
+html{scrollbar-gutter:stable;}
+body{min-width:1240px;}
+#root{min-height:100vh;display:flex;flex-direction:column;}
+.shell{flex:1;display:flex;flex-direction:column;}
+.px{padding-left:var(--px);padding-right:var(--px);}
+.g48{gap:48px}
+.wrap{flex-wrap:wrap;}
+.center{justify-content:center;}
+.start{align-items:flex-start;}
+.end{justify-content:flex-end;}
+.white{background:var(--surface);}
+.bb{border-bottom:1px solid var(--line);}
+.line-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);gap:16px;}
+.card>.line-row:last-child,.lines>.line-row:last-child{border-bottom:0;}
+.sticky{position:sticky;top:16px;align-self:flex-start;}
+button:disabled{cursor:not-allowed;}
+.nav a,.tab,.chip,.seg>*,.slot,.day,.opt,.pick{cursor:pointer;}
+.chip,.seg>*{font:inherit;font-weight:600;}
+.seg>button{border-top:0;border-bottom:0;border-left:0;border-radius:0;background:transparent;}
+.seg>button.on{background:var(--accent-tint);color:var(--accent);}
+.chip:hover{background:var(--surface-2);}
+.chip.on:hover{background:var(--accent-tint-2);}
+.day:disabled{cursor:not-allowed;}
+.slot:disabled{cursor:not-allowed;}
+.slot.few{flex-direction:column;gap:0;line-height:14px;}
+.slot.few.sel{border-color:var(--accent);color:#fff;}
+.slot.mini.few{flex-direction:row;}
+.tab{background:none;border-left:0;border-right:0;border-top:0;font:inherit;font-weight:600;}
+
+/* Поля ввода: в макете .input — блок с текстом, здесь внутри настоящий input. */
+.input input,.input select,.input textarea{flex:1;min-width:0;width:100%;height:100%;border:0;outline:0;background:transparent;padding:0;appearance:none;}
+.input textarea{resize:none;line-height:20px;}
+.input select{cursor:pointer;}
+.input input::placeholder,.input textarea::placeholder{color:var(--ink-3);opacity:1;}
+.input:focus-within{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+.input.error:focus-within{border-color:var(--danger);box-shadow:0 0 0 1px var(--danger);}
+.input.btnlike{cursor:pointer;text-align:left;font-weight:600;}
+.input input:disabled{color:var(--ink-3);}
+label.row{cursor:pointer;}
+.chk,.rad,.tgl{cursor:pointer;padding:0;}
+.tgl{border:0;}
+.tgl::after{transition:left .15s;}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;}
+
+/* Карточка выбора (зона, услуга, тариф): рамка 1 px, выбранная — 2 px акцентом. */
+.opt{display:flex;align-items:center;gap:12px;padding:12px 16px;border:1px solid var(--line-strong);border-radius:var(--r-lg);background:var(--surface);text-align:left;width:100%;font:inherit;color:inherit;}
+.opt:hover{background:#FAFBFC;}
+.opt.on{border:2px solid var(--accent);background:var(--accent-tint);padding:11px 15px;}
+.opt:disabled{opacity:.55;cursor:not-allowed;}
+.pick{display:flex;flex-direction:column;gap:4px;align-items:center;padding:8px 0;border-radius:var(--r);border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);flex:1;font:inherit;}
+.pick.on{border-color:var(--accent);background:var(--accent);color:#fff;}
+.pick:disabled{opacity:.45;cursor:not-allowed;}
+
+/* Всплывающие слои */
+.pop{position:absolute;z-index:20;top:calc(100% + 8px);left:0;}
+.menu .mi{cursor:pointer;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;}
+.menu button.mi{height:36px;padding:0 12px;border-radius:var(--r);display:flex;align-items:center;gap:8px;font-weight:500;}
+.menu .mi:hover{background:var(--surface-2);}
+.modal-bg{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;}
+.toasts{position:fixed;right:24px;bottom:24px;z-index:120;display:flex;flex-direction:column;gap:8px;}
+.toast{animation:toast-in .2s ease-out;}
+@keyframes toast-in{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.toast{animation:none;}}
+
+.side-link{display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border-radius:var(--r);font-weight:600;color:var(--ink-2);width:100%;font-family:inherit;font-size:inherit;}
+.side-link:hover{background:var(--surface-2);color:var(--ink);}
+.side-link.on{color:var(--accent);background:var(--accent-tint);}
+.heart{width:28px;height:28px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;}
+.heart.on svg{fill:var(--danger);stroke:var(--danger);}
+.btn.on-heart svg{fill:var(--danger);stroke:var(--danger);}
+.place-card{flex:1;min-width:0;overflow:hidden;display:flex;flex-direction:column;position:relative;}
+.place-card:hover,.cat-card:hover{box-shadow:var(--sh-raised);}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.prose h2{margin:32px 0 8px;font-size:20px;line-height:24px;}
+.prose p{color:var(--ink-2);font-size:16px;line-height:24px;margin-bottom:8px;}
+.range{position:relative;height:20px;}
+.range input{position:absolute;inset:0;width:100%;margin:0;background:none;appearance:none;pointer-events:none;height:20px;}
+.range input::-webkit-slider-thumb{appearance:none;pointer-events:auto;width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--accent);cursor:pointer;}
+.range input::-moz-range-thumb{pointer-events:auto;width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid var(--accent);cursor:pointer;}
+.range input::-webkit-slider-runnable-track{background:none;}
+.range input::-moz-range-track{background:none;}
+.pin{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;}
+.pin b{background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r);padding:2px 6px;font-size:12px;box-shadow:var(--sh-raised);white-space:nowrap;}
+.pin:hover b,.pin.on b{background:var(--accent);border-color:var(--accent);color:#fff;z-index:2;}

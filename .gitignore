@@ -1,0 +1,18 @@
+# Зависимости и сборка
+node_modules
+dist
+
+# Локальная база с бронями и пользователями
+data/
+
+# Секреты и локальные настройки
+.env
+.env.*
+!.env.example
+
+# Логи и служебные файлы
+*.log
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea

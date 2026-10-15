@@ -1,0 +1,114 @@
+/* Тема «ночь», анимации и микровзаимодействия. Подключается после base.css и app.css. */
+
+:root{
+  --on-accent:#FFFFFF;
+  --surface-hover:#FAFBFC;
+  --unread:#FAFCFF;
+  --hero:var(--accent-press);
+  --hero-text:#CFE1FD;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --ink:#DEE4EA; --ink-2:#B6C2CF; --ink-3:#8C9BAB;
+  --bg:#161A1D; --surface:#1D2125; --surface-2:#22272B; --surface-3:#2C333A;
+  --line:#2C333A; --line-strong:#454F59;
+  --accent:#579DFF; --accent-hover:#85B8FF; --accent-press:#CCE0FF; --accent-tint:#1C2B41; --accent-tint-2:#09326C;
+  --success:#4BCE97; --success-tint:#164B35; --warn:#E2B203; --warn-tint:#533F04; --danger:#F87168; --danger-tint:#5D1F1A;
+  --sh-raised:0 1px 1px rgba(3,4,4,.5),0 0 1px rgba(3,4,4,.5);
+  --sh-overlay:0 8px 12px rgba(3,4,4,.36),0 0 1px rgba(3,4,4,.5),inset 0 0 0 1px rgba(188,214,240,.12);
+  --on-accent:#1D2125;
+  --surface-hover:#22272B;
+  --unread:#1C2B41;
+  --hero:#0B1E3F;
+  --hero-text:#9DB7DB;
+  color-scheme:dark;
+}
+:root[data-theme="dark"] .banner.success{border-color:#216E4E;}
+:root[data-theme="dark"] .banner.warn{border-color:#7F5F01;}
+:root[data-theme="dark"] .banner.danger{border-color:#AE2E24;}
+:root[data-theme="dark"] .modal-bg{background:rgba(3,4,4,.64);}
+:root[data-theme="dark"] .ph{filter:saturate(.9) brightness(.92);}
+:root[data-theme="dark"] .rate svg{color:#E2B203;}
+
+/* Цвет текста на акцентных элементах — через токен, чтобы в тёмной теме не терялся контраст. */
+.btn-primary,.day.sel,.day.rs,.day.re,.slot.sel,.step.done b,.pick.on{color:var(--on-accent);}
+.btn-primary svg,.slot.sel svg,.pick.on svg{stroke:currentColor;}
+.chk.on svg,.step.done b svg{stroke:var(--on-accent);}
+.input:hover{background:var(--surface-hover);}
+.opt:hover{background:var(--surface-hover);}
+.opt.on:hover{background:var(--accent-tint);}
+.hero{background:var(--hero);}
+.hero h1{color:#fff;}
+.hero p{color:var(--hero-text);}
+
+/* Плавная смена темы: включается на мгновение при переключении. */
+html.theme-switch *,html.theme-switch *::before,html.theme-switch *::after{transition:background-color .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease),fill .35s,stroke .35s!important;}
+
+/* --- Кнопки --- */
+.btn{position:relative;overflow:hidden;transition:background-color .15s,border-color .15s,box-shadow .2s var(--ease),transform .15s var(--ease);}
+.btn:not([disabled]):hover{transform:translateY(-1px);}
+.btn-primary:not([disabled]):hover{box-shadow:0 4px 12px rgba(12,102,228,.28);}
+.btn:not([disabled]):active{transform:translateY(0) scale(.97);}
+.btn-icon:not([disabled]):hover{transform:none;}
+.ripple{position:absolute;border-radius:50%;pointer-events:none;background:currentColor;opacity:.22;transform:scale(0);animation:ripple .55s var(--ease) forwards;}
+@keyframes ripple{to{transform:scale(1);opacity:0}}
+.chip,.slot,.day,.opt,.pick,.tab,.side-link,.nav a,.seg>*{transition:background-color .15s,border-color .15s,color .15s,transform .15s var(--ease),box-shadow .15s;}
+.slot:not(:disabled):active,.day:not(:disabled):active,.chip:active,.pick:not(:disabled):active{transform:scale(.95);}
+.slot.sel,.day.sel{animation:pop .28s var(--ease);}
+@keyframes pop{0%{transform:scale(.9)}60%{transform:scale(1.05)}100%{transform:scale(1)}}
+.heart.on svg,.on-heart svg{animation:heart .35s var(--ease);}
+@keyframes heart{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+.tgl{transition:background-color .2s;}
+
+/* --- Карточки --- */
+.place-card,.cat-card{transition:box-shadow .2s var(--ease),transform .2s var(--ease),border-color .2s;}
+.place-card:hover,.cat-card:hover{transform:translateY(-3px);box-shadow:var(--sh-overlay);}
+.place-card .ph>svg,.place-card .ph>img,.place-card>div>img{transition:transform .6s var(--ease);}
+.place-card:hover .ph>svg,.place-card:hover .ph>img,.place-card:hover>div>img{transform:scale(1.06);}
+.stagger>*{animation:rise .5s var(--ease) both;}
+.stagger>*:nth-child(2){animation-delay:.05s}.stagger>*:nth-child(3){animation-delay:.1s}.stagger>*:nth-child(4){animation-delay:.15s}
+.stagger>*:nth-child(5){animation-delay:.2s}.stagger>*:nth-child(6){animation-delay:.25s}.stagger>*:nth-child(7){animation-delay:.3s}.stagger>*:nth-child(8){animation-delay:.35s}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* --- Переходы между страницами и всплывающие слои --- */
+.route{animation:route-in .35s var(--ease) both;flex:1;display:flex;flex-direction:column;}
+@keyframes route-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.pop{animation:drop .16s var(--ease);}
+@keyframes drop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.modal-bg{animation:fade .18s ease-out;}
+.modal-bg>[role=dialog]{animation:modal-in .22s var(--ease);}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes modal-in{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+
+/* --- Заставка при запуске сайта --- */
+.intro{position:fixed;inset:0;z-index:1000;background:#0B1E3F;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:28px;animation:intro-out .55s var(--ease) 1.35s forwards;}
+.intro-logo{display:flex;align-items:center;gap:14px;color:#fff;font-size:34px;font-weight:700;letter-spacing:-.01em;}
+.intro-mark{width:44px;height:44px;border-radius:8px;background:#579DFF;position:relative;animation:mark .9s var(--ease) both;}
+.intro-mark::after{content:"";position:absolute;inset:11px;border-radius:3px;border:3px solid #fff;animation:mark-inner .9s var(--ease) .15s both;}
+.intro-word{display:inline-flex;overflow:hidden;}
+.intro-word span{display:inline-block;animation:letter .5s var(--ease) both;}
+.intro-bar{width:180px;height:3px;border-radius:2px;background:rgba(255,255,255,.18);overflow:hidden;}
+.intro-bar i{display:block;height:100%;background:#fff;transform-origin:left;animation:bar 1.2s var(--ease) both;}
+.intro-tag{color:#9DB7DB;font-size:14px;animation:rise .6s var(--ease) .55s both;}
+@keyframes mark{0%{transform:scale(0) rotate(-90deg);border-radius:50%}70%{transform:scale(1.12) rotate(8deg)}100%{transform:none}}
+@keyframes mark-inner{from{transform:scale(0);opacity:0}to{transform:none;opacity:1}}
+@keyframes letter{from{transform:translateY(110%);opacity:0}to{transform:none;opacity:1}}
+@keyframes bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes intro-out{to{opacity:0;transform:scale(1.04);visibility:hidden}}
+.site-in{animation:site-in .7s var(--ease) 1.45s both;}
+@keyframes site-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* Переключатели в шапке */
+.icon-swap svg{transition:transform .45s var(--ease);}
+.icon-swap:hover svg{transform:rotate(-20deg);}
+
+/* Галерея */
+.lightbox{position:fixed;inset:0;z-index:110;background:rgba(9,14,22,.92);display:flex;align-items:center;justify-content:center;animation:fade .2s ease-out;}
+.lightbox-frame{width:min(1100px,80vw);aspect-ratio:16/10;position:relative;border-radius:var(--r-lg);overflow:hidden;animation:modal-in .25s var(--ease);}
+.lightbox .btn{position:absolute;}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0s!important;transition-duration:.001ms!important;}
+  .intro{display:none;}
+}
