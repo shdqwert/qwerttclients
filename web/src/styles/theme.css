@@ -100,6 +100,43 @@ html.theme-switch *,html.theme-switch *::before,html.theme-switch *::after{trans
 .site-in{animation:site-in .7s var(--ease) 1.45s both;}
 @keyframes site-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 
+/* --- Заставка главной: держится до прокрутки, уезжает с параллаксом ---
+   --p: 0 → 1 по мере прокрутки; --mx, --my: положение мыши от -1 до 1; --d: глубина слоя. */
+.splash{--p:0;--mx:0;--my:0;position:fixed;inset:0;z-index:1000;overflow:hidden;color:#fff;
+  background:radial-gradient(120% 90% at 50% 0%,#12305F 0%,#0B1E3F 55%,#081529 100%);
+  transform:translate3d(0,calc(var(--p) * -100%),0);box-shadow:0 40px 90px rgba(0,0,0,.45);will-change:transform;}
+.splash-grid{position:absolute;inset:-10%;background-image:radial-gradient(rgba(255,255,255,.09) 1px,transparent 1.2px);background-size:30px 30px;
+  -webkit-mask-image:radial-gradient(closest-side,#000 30%,transparent);mask-image:radial-gradient(closest-side,#000 30%,transparent);
+  transform:translate3d(calc(var(--mx) * -12px),calc(var(--my) * -12px + var(--p) * 55vh),0);animation:fade 1.2s ease-out both;}
+.splash-glow{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;animation:fade 1.6s ease-out both;}
+.splash-glow.a{width:560px;height:560px;left:4%;top:4%;background:#2F6FD6;transform:translate3d(calc(var(--mx) * 46px),calc(var(--my) * 46px + var(--p) * 40vh),0);}
+.splash-glow.b{width:460px;height:460px;right:2%;bottom:0;background:#6C4FD0;opacity:.38;transform:translate3d(calc(var(--mx) * -60px),calc(var(--my) * -60px + var(--p) * 70vh),0);}
+.splash-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:0 24px;
+  transform:translate3d(calc(var(--mx) * -10px),calc(var(--my) * -10px + var(--p) * -22vh),0) scale(calc(1 - var(--p) * .12));opacity:calc(1 - var(--p) * 1.5);}
+.splash .intro-logo{font-size:60px;gap:20px;}
+.splash .intro-mark{width:68px;height:68px;border-radius:14px;}
+.splash .intro-mark::after{inset:17px;border-width:4px;border-radius:4px;}
+.splash-title{font-size:26px;line-height:34px;font-weight:700;color:#fff;animation:rise .7s var(--ease) .75s both;}
+.splash-sub{max-width:560px;font-size:16px;line-height:24px;color:#9DB7DB;animation:rise .7s var(--ease) .9s both;}
+.splash-chip{position:absolute;left:calc(50% + var(--x));top:calc(50% + var(--y));
+  transform:translate3d(calc(-50% + var(--mx) * var(--d) * 34px),calc(-50% + var(--my) * var(--d) * 34px - var(--p) * var(--d) * 70vh),0);}
+.splash-chip>span{display:inline-flex;align-items:center;gap:8px;padding:8px 14px 8px 8px;border-radius:999px;white-space:nowrap;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  font-size:14px;font-weight:600;color:#E3ECFA;box-shadow:0 10px 30px rgba(0,0,0,.25);
+  animation:chip-in .8s var(--ease) both,chip-float 6s ease-in-out infinite;}
+.splash-chip i{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;}
+@keyframes chip-in{from{opacity:0;scale:.6}to{opacity:1;scale:1}}
+@keyframes chip-float{0%,100%{translate:0 0}50%{translate:0 -10px}}
+.splash-hint{position:absolute;left:0;right:0;bottom:34px;margin:0 auto;width:max-content;display:flex;flex-direction:column;align-items:center;gap:10px;
+  background:none;border:0;color:#9DB7DB;font:inherit;font-size:13px;cursor:pointer;opacity:calc(1 - var(--p) * 3);animation:rise .7s var(--ease) 1.3s both;}
+.splash-hint:hover{color:#fff;}
+.splash-mouse{width:26px;height:40px;border:2px solid rgba(255,255,255,.55);border-radius:14px;position:relative;}
+.splash-mouse::after{content:"";position:absolute;left:50%;top:7px;width:4px;height:8px;margin-left:-2px;border-radius:2px;background:#fff;animation:wheel 1.6s ease-in-out infinite;}
+@keyframes wheel{0%{transform:translateY(0);opacity:1}70%{transform:translateY(13px);opacity:0}100%{transform:translateY(0);opacity:0}}
+/* Сайт под заставкой: приближается и проявляется по мере прокрутки */
+html.splash-on{overflow:hidden;}
+html.splash-on .shell{transform:translate3d(0,calc((1 - var(--sp,0)) * 12vh),0) scale(calc(.93 + var(--sp,0) * .07));opacity:calc(.25 + var(--sp,0) * .75);transform-origin:50% 0;}
+
 /* Переключатели в шапке */
 .icon-swap svg{transition:transform .45s var(--ease);}
 .icon-swap:hover svg{transform:rotate(-20deg);}

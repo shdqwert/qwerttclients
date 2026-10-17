@@ -127,34 +127,4 @@ export function PrefsProvider({ children }: { children: (lang: Lang) => ReactNod
   return <PrefsCtx.Provider value={value}>{children(lang)}</PrefsCtx.Provider>;
 }
 
-/**
- * Заставка показывается при каждой полной загрузке страницы, в том числе при обновлении (F5).
- * Переходы по ссылкам внутри сайта страницу не перезагружают, поэтому заставку не вызывают.
- * Решение принимается один раз при загрузке модуля.
- */
-const SHOW_INTRO = !matchMedia('(prefers-reduced-motion: reduce)').matches;
-export const introShown = SHOW_INTRO;
-
-export function Intro() {
-  const [gone, setGone] = useState(!SHOW_INTRO);
-  useEffect(() => {
-    if (!SHOW_INTRO) return;
-    const timer = setTimeout(() => setGone(true), 2000);
-    return () => clearTimeout(timer);
-  }, []);
-  if (gone) return null;
-  const word = 'qwerttclients';
-  return (
-    <div className="intro" aria-hidden="true">
-      <div className="intro-logo">
-        <span className="intro-mark" />
-        <span className="intro-word">
-          {word.split('').map((ch, i) => <span key={i} style={{ animationDelay: `${0.25 + i * 0.035}s` }}>{ch}</span>)}
-        </span>
-      </div>
-      <div className="intro-bar"><i /></div>
-      <span className="intro-tag">{t('Book anything nearby')}</span>
-    </div>
-  );
-}
 

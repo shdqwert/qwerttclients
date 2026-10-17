@@ -1,7 +1,8 @@
 // Маршруты приложения. При смене языка дерево страниц перестраивается, чтобы весь текст сменился сразу.
 import { Fragment } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { Intro, introShown, PrefsProvider } from './i18n.tsx';
+import { PrefsProvider } from './i18n.tsx';
+import { Intro, introShown } from './splash.tsx';
 import { AccountLayout, AuthShell, Shell } from './layout.tsx';
 import { BookingDetail, Confirmation, MyBookings, Notifications, Payments, Profile, Saved, Settings } from './pages/Account.tsx';
 import { Forgot, Login, Reset, Signup } from './pages/Auth.tsx';
