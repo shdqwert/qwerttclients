@@ -127,15 +127,12 @@ export function PrefsProvider({ children }: { children: (lang: Lang) => ReactNod
   return <PrefsCtx.Provider value={value}>{children(lang)}</PrefsCtx.Provider>;
 }
 
-/** Заставка показывается один раз за сессию; решение принимается при загрузке модуля. */
-const SHOW_INTRO = (() => {
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-  try {
-    if (sessionStorage.getItem('qw:intro')) return false;
-    sessionStorage.setItem('qw:intro', '1');
-  } catch { /* без хранилища показываем заставку */ }
-  return true;
-})();
+/**
+ * Заставка показывается при каждой полной загрузке страницы, в том числе при обновлении (F5).
+ * Переходы по ссылкам внутри сайта страницу не перезагружают, поэтому заставку не вызывают.
+ * Решение принимается один раз при загрузке модуля.
+ */
+const SHOW_INTRO = !matchMedia('(prefers-reduced-motion: reduce)').matches;
 export const introShown = SHOW_INTRO;
 
 export function Intro() {
