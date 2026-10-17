@@ -397,4 +397,5 @@ export const UZ: Record<string, string> = {
   "Photo credits": "Suratlar mualliflari",
   "Photos on this site are from Unsplash and are used under the Unsplash License. Thank you to the photographers.": "Saytdagi suratlar Unsplash’dan olingan va Unsplash litsenziyasi asosida ishlatiladi. Fotograflarga rahmat.",
   "The booking server is not running at this address. Only the pages were published, without the server.": "Bu manzilda bron serveri ishlamayapti: faqat sahifalar serversiz joylangan.",
+  "Show {n} in other categories": "Boshqa toifalarda {n}ni ko‘rsatish",
 };

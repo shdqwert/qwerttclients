@@ -9,7 +9,7 @@ import { dateLabel, locate, type Query, queryParams, readQuery, SearchFields } f
 import { Art, Banner, Check, Empty, ErrorBox, I, Icon, Rate, Seg, Toggle, useLoad } from '../ui.tsx';
 import { t, tl } from '../i18n.tsx';
 
-const WIDTH: Record<string, number> = { where: 260, date: 170, time: 120, guests: 140 };
+const WIDTH: Record<string, number> = { where: 250, date: 170, time: 145, guests: 130 };
 const CTA: Record<string, string> = { restaurant: 'Book a table', salon: 'Book a visit', hotel: 'See rooms', sport: 'Book a slot', event: 'Get tickets' };
 const UNIT: Record<string, string> = { restaurant: 'per guest, avg.', salon: 'from', hotel: 'per night, from', sport: 'from', event: 'per ticket, from' };
 const SORTS = [['recommended', 'Recommended'], ['rating', 'Rating'], ['price', 'Price'], ['distance', 'Distance']] as const;
@@ -111,6 +111,12 @@ export function Results() {
     perPage: f.view === 'map' ? 50 : 5,
   }), [key]);
   const cats = useLoad(() => api.categories(), []);
+  // Ничего не нашлось в выбранной категории — проверяем, есть ли подходящие места в других.
+  const noneHere = res.data?.total === 0 && !!query.category;
+  const elsewhere = useLoad(() => (noneHere
+    ? api.places({ q: query.q, neighbourhood: query.where, date: query.date, perPage: 1 }).then((r) => r.total)
+    : Promise.resolve(0)), [key, noneHere]);
+  const allCategories = () => set({ category: null, cuisine: null, features: null, priceMin: null, priceMax: null });
 
   const rawCat = cats.data?.find((c) => c.id === query.category)?.name;
   const catName = rawCat ? t(rawCat) : undefined;
@@ -123,11 +129,32 @@ export function Results() {
   const priceMin = Number(f.priceMin) || lo;
   const priceMax = Number(f.priceMax) || hi;
   const pct = (v: number) => ((v - lo) / (hi - lo)) * 100;
+  // Ползунок двигается сразу, а запрос уходит, когда пользователь остановился.
+  const [price, setPrice] = useState<[number, number]>([priceMin, priceMax]);
+  useEffect(() => setPrice([priceMin, priceMax]), [priceMin, priceMax]);
+  useEffect(() => {
+    if (price[0] === priceMin && price[1] === priceMax) return;
+    const timer = setTimeout(() => set({ priceMin: price[0] > lo ? String(price[0]) : null, priceMax: price[1] < hi ? String(price[1]) : null }), 350);
+    return () => clearTimeout(timer);
+  }, [price]); // eslint-disable-line react-hooks/exhaustive-deps
+  const priceInput = (i: 0 | 1, label: string) => (
+    <label className="input" style={{ width: 96, height: 32 }}>
+      $<input key={price[i]} type="number" aria-label={label} min={lo} max={hi} defaultValue={price[i]}
+        onBlur={(e) => {
+          const v = Math.max(lo, Math.min(hi, Number(e.target.value) || (i === 0 ? lo : hi)));
+          setPrice((p) => (i === 0 ? [Math.min(v, p[1]), p[1]] : [p[0], Math.max(v, p[0])]));
+          e.target.value = String(price[i]);
+        }}
+        onFocus={(e) => e.target.select()}
+        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }}
+        style={{ border: 0, outline: 0, background: 'transparent', font: 'inherit', color: 'inherit', width: '100%', padding: 0 }} />
+    </label>
+  );
 
   const chips: [string, () => void][] = [
     ...(f.minRating ? [[`${f.minRating}+`, () => set({ minRating: null })] as [string, () => void]] : []),
-    ...f.cuisine.map((c) => [c, () => toggleIn('cuisine', c)] as [string, () => void]),
-    ...f.features.map((c) => [c, () => toggleIn('features', c)] as [string, () => void]),
+    ...f.cuisine.map((c) => [t(c), () => toggleIn('cuisine', c)] as [string, () => void]),
+    ...f.features.map((c) => [t(c), () => toggleIn('features', c)] as [string, () => void]),
     ...(f.freeCancel ? [[t('Free cancellation'), () => set({ freeCancel: null })] as [string, () => void]] : []),
     ...(f.instant ? [[t('Instant confirmation'), () => set({ instant: null })] as [string, () => void]] : []),
     ...(f.openAt ? [[t('Open at selected time'), () => set({ openAt: null })] as [string, () => void]] : []),
@@ -145,7 +172,7 @@ export function Results() {
           onSubmit={(e) => { e.preventDefault(); const next = new URLSearchParams(sp); ['category', 'q', 'where', 'date', 'time', 'guests', 'page'].forEach((k) => next.delete(k)); for (const [k, v] of Object.entries(queryParams(draft))) next.set(k, v); setSp(next); }}>
           <SearchFields value={draft} onChange={(p) => setDraft((d) => ({ ...d, ...p }))} cell={(k, _label, icon, content, popover) => (
             <div key={k} style={{ position: 'relative', width: WIDTH[k] }}>
-              <div className="input"><Icon n={icon} color="var(--ink-3)" />{content}</div>
+              <div className="input" style={{ whiteSpace: 'nowrap' }}><Icon n={icon} color="var(--ink-3)" />{content}</div>
               {popover}
             </div>
           )} />
@@ -175,9 +202,9 @@ export function Results() {
             <div className="col g12" style={{ padding: '16px 0', borderBottom: '1px solid var(--line)' }}>
               <span className="h3" style={{ fontSize: 14 }}>{t("Category")}</span>
               <div className="row g8 wrap">
-                <button type="button" className={`chip ${!query.category ? 'on' : ''}`} onClick={() => set({ category: null, cuisine: null, features: null })}>{t("All")}</button>
+                <button type="button" className={`chip ${!query.category ? 'on' : ''}`} onClick={() => set({ category: null, cuisine: null, features: null, priceMin: null, priceMax: null })}>{t("All")}</button>
                 {(cats.data ?? []).filter((c) => c.count > 0).map((c) => (
-                  <button type="button" key={c.id} className={`chip ${query.category === c.id ? 'on' : ''}`} onClick={() => set({ category: c.id, cuisine: null, features: null })}>{t(c.name)}</button>
+                  <button type="button" key={c.id} className={`chip ${query.category === c.id ? 'on' : ''}`} onClick={() => set({ category: c.id, cuisine: null, features: null, priceMin: null, priceMax: null })}>{t(c.name)}</button>
                 ))}
               </div>
             </div>
@@ -186,14 +213,14 @@ export function Results() {
                 <span className="h3" style={{ fontSize: 14 }}>{t("Price from")}</span>
                 <div className="range">
                   <div style={{ position: 'absolute', top: 9, left: 0, right: 0, height: 2, background: 'var(--line-strong)' }} />
-                  <div style={{ position: 'absolute', top: 9, left: `${pct(priceMin)}%`, right: `${100 - pct(priceMax)}%`, height: 2, background: 'var(--accent)' }} />
-                  <input type="range" aria-label={t("Minimum price")} min={lo} max={hi} value={priceMin} onChange={(e) => set({ priceMin: String(Math.min(Number(e.target.value), priceMax)) })} />
-                  <input type="range" aria-label={t("Maximum price")} min={lo} max={hi} value={priceMax} onChange={(e) => set({ priceMax: String(Math.max(Number(e.target.value), priceMin)) })} />
+                  <div style={{ position: 'absolute', top: 9, left: `${pct(price[0])}%`, right: `${100 - pct(price[1])}%`, height: 2, background: 'var(--accent)' }} />
+                  <input type="range" aria-label={t("Minimum price")} min={lo} max={hi} value={price[0]} onChange={(e) => setPrice((p) => [Math.min(Number(e.target.value), p[1]), p[1]])} />
+                  <input type="range" aria-label={t("Maximum price")} min={lo} max={hi} value={price[1]} onChange={(e) => setPrice((p) => [p[0], Math.max(Number(e.target.value), p[0])])} />
                 </div>
                 <div className="row between">
-                  <div className="input" style={{ width: 96, height: 32 }}>${priceMin}</div>
+                  {priceInput(0, t("Minimum price"))}
                   <span className="subtle">–</span>
-                  <div className="input" style={{ width: 96, height: 32 }}>${priceMax}</div>
+                  {priceInput(1, t("Maximum price"))}
                 </div>
               </div>
             )}
@@ -268,7 +295,9 @@ export function Results() {
             {res.error && <ErrorBox error={res.error} onRetry={res.reload} />}
             {res.loading && !res.data && <div className="col g16">{[0, 1, 2].map((i) => <div key={i} className="skel" style={{ height: 168 }} />)}</div>}
             {res.data && res.data.total === 0 && (
-              <Empty icon={I.search} title={t("No places match these filters")} action={<button type="button" className="btn btn-secondary btn-sm" onClick={clearAll}>{t("Clear filters")}</button>}>
+              <Empty icon={I.search} title={t("No places match these filters")} action={noneHere && (elsewhere.data ?? 0) > 0
+                ? <button type="button" className="btn btn-primary btn-sm" onClick={allCategories}>{t('Show {n} in other categories', { n: plural(elsewhere.data!, 'place') })}</button>
+                : <button type="button" className="btn btn-secondary btn-sm" onClick={clearAll}>{t("Clear filters")}</button>}>
                 {t("Try another date or time, or remove a filter.")}
               </Empty>
             )}

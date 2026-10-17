@@ -390,3 +390,20 @@ test('near me sorts by real distance', async () => {
   assert.ok(r.body.items[0].distanceKm < 2);
   await app.close();
 });
+
+test('text search understands Russian, Uzbek and Cyrillic spelling of names', async () => {
+  const { app } = setup();
+  const slugs = async (q: string) => (await call(app, 'GET', `/places?perPage=50&q=${encodeURIComponent(q)}`)).body.items.map((p: { slug: string }) => p.slug).sort();
+  const italian = await slugs('Italian');
+  assert.ok(italian.length >= 2);
+  assert.deepEqual(await slugs('итальянский'), italian);
+  assert.deepEqual(await slugs('итальянская кухня ресторан'), await slugs('Italian restaurant'));
+  assert.ok((await slugs('Амбер')).includes('amber'));
+  assert.ok((await slugs('ок сарой')).includes('oq-saroy'));
+  assert.deepEqual(await slugs('Мирабад'), await slugs('Mirabad'));
+  assert.ok((await slugs('отель')).length > 0);
+  assert.deepEqual(await slugs('zzzz'), []);
+  const sug = (await call(app, 'GET', `/suggest?q=${encodeURIComponent('Чиланзар')}`)).body;
+  assert.equal(sug[0].title, 'Chilanzar, Tashkent');
+  await app.close();
+});

@@ -21,7 +21,8 @@ export function Home() {
   const [filter, setFilter] = useState('');
   const [locating, setLocating] = useState(false);
   const patch = (p: Partial<Query>) => setQuery((q) => ({ ...q, ...p }));
-  const go = (q: Query) => navigate(`/search?${new URLSearchParams(queryParams(q))}`);
+  // Поиск по названию или словам идёт по всем категориям: вкладка не должна прятать найденное место.
+  const go = (q: Query) => navigate(`/search?${new URLSearchParams(queryParams(q.q ? { ...q, category: '' } : q))}`);
 
   const cats = useLoad(() => api.categories(), []);
   const places = useLoad(() => api.places({ perPage: 50 }), []);

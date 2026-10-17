@@ -7,6 +7,7 @@ import { type Ctx, HttpError, iso, parse, zDate, zTime } from '../lib.ts';
 import { getAvailability, getCalendar, todaySlots } from '../availability.ts';
 import { CATEGORIES, NEIGHBOURHOODS, PLACES, type PlaceDef, placeBySlug } from '../catalog.ts';
 import { sweepCompleted } from '../core.ts';
+import { matchesName, matchesText } from '../search.ts';
 
 const csv = z.string().optional().transform((v) => (v ? v.split(',').map((s) => s.trim()).filter(Boolean) : []));
 const flag = z.enum(['0', '1']).optional().transform((v) => v === '1');
@@ -84,10 +85,10 @@ export function catalogRoutes(app: FastifyInstance, ctx: Ctx) {
     const { q } = parse(z.object({ q: z.string().trim().max(80).default('') }), req.query);
     const needle = q.toLowerCase();
     const hoods: Suggestion[] = NEIGHBOURHOODS
-      .filter((n) => !needle || n.toLowerCase().includes(needle))
+      .filter((n) => matchesName(n, q))
       .map((n) => ({ type: 'neighbourhood', title: `${n}, Tashkent`, note: `Neighbourhood · ${PLACES.filter((p) => p.neighbourhood === n).length} places`, icon: 'i14' }));
     const places: Suggestion[] = needle
-      ? PLACES.filter((p) => p.name.toLowerCase().includes(needle) || p.subtitle.toLowerCase().includes(needle))
+      ? PLACES.filter((p) => matchesText(p, q))
         .map((p) => ({ type: 'place', title: p.name, note: p.subtitle.split(' · ').reverse().join(' · '), icon: p.icon, slug: p.slug }))
       : [];
     return [...hoods.slice(0, needle ? 2 : 6), ...places.slice(0, 5)];
@@ -96,10 +97,9 @@ export function catalogRoutes(app: FastifyInstance, ctx: Ctx) {
   app.get('/places', async (req): Promise<SearchResult> => {
     const f = parse(searchSchema, req.query);
     const date = f.date && f.date >= today() ? f.date : today();
-    const needle = f.q?.toLowerCase();
     const base = PLACES.filter((p) => (!f.category || p.category === f.category)
       && (!f.neighbourhood || p.neighbourhood === f.neighbourhood)
-      && (!needle || [p.name, p.subtitle, p.neighbourhood, p.address, p.cuisine ?? ''].some((s) => s.toLowerCase().includes(needle))));
+      && (!f.q || matchesText(p, f.q)));
 
     const count = (pred: (p: PlaceDef) => boolean) => base.filter(pred).length;
     const names = (pick: (p: PlaceDef) => string[]) => [...new Set(base.flatMap(pick))].sort();
